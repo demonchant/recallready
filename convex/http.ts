@@ -14,17 +14,38 @@ function stringArray(value: unknown) {
   return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
 }
 
+function constantTimeEqual(left: string, right: string) {
+  if (left.length !== right.length) return false;
+  let difference = 0;
+  for (let index = 0; index < left.length; index += 1) difference |= left.charCodeAt(index) ^ right.charCodeAt(index);
+  return difference === 0;
+}
+
+async function verifyAgentMailSignature(request: Request, body: string, secret: string) {
+  const messageId = request.headers.get("svix-id");
+  const timestamp = request.headers.get("svix-timestamp");
+  const signatures = request.headers.get("svix-signature");
+  if (!messageId || !timestamp || !signatures) return false;
+  const timestampSeconds = Number(timestamp);
+  if (!Number.isFinite(timestampSeconds) || Math.abs(Date.now() / 1000 - timestampSeconds) > 300) return false;
+  const secretBytes = Uint8Array.from(atob(secret.replace(/^whsec_/, "")), (character) => character.charCodeAt(0));
+  const key = await crypto.subtle.importKey("raw", secretBytes, { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  const signature = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(`${messageId}.${timestamp}.${body}`));
+  const expected = btoa(String.fromCharCode(...new Uint8Array(signature)));
+  return signatures.split(" ").some((candidate) => candidate.startsWith("v1,") && constantTimeEqual(candidate.slice(3), expected));
+}
+
 http.route({
   path: "/webhooks/agentmail",
   method: "POST",
   handler: httpAction(async (ctx, request) => {
     const expectedSecret = process.env.AGENTMAIL_WEBHOOK_SECRET;
     if (!expectedSecret) return new Response("Webhook is not configured", { status: 503 });
-    if (request.headers.get("x-recallready-secret") !== expectedSecret) return new Response("Unauthorized", { status: 401 });
-
+    const bodyText = await request.text();
+    if (!(await verifyAgentMailSignature(request, bodyText, expectedSecret))) return new Response("Invalid webhook signature", { status: 401 });
     let payload: unknown;
     try {
-      payload = await request.json();
+      payload = JSON.parse(bodyText) as unknown;
     } catch {
       return new Response("Invalid JSON", { status: 400 });
     }

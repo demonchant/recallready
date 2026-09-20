@@ -69,7 +69,7 @@ Register the AgentMail `message.received` webhook at:
 https://YOUR_DEPLOYMENT.convex.site/webhooks/agentmail
 ```
 
-Use the custom request header `x-recallready-secret` with the configured webhook secret.
+Set `AGENTMAIL_WEBHOOK_SECRET` to the `whsec_...` signing secret shown when the AgentMail webhook is created. RecallReady verifies the standard `svix-id`, `svix-timestamp`, and `svix-signature` headers.
 
 ## Verify
 
