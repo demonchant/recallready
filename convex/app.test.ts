@@ -2,11 +2,18 @@
 import { convexTest } from "convex-test";
 import { describe, expect, it } from "vitest";
 import { api, internal } from "./_generated/api";
+import { readOpenAIOutputText } from "./integrations";
 import schema from "./schema";
 
 const modules = import.meta.glob("./**/*.ts");
 
 describe("RecallReady Convex backend", () => {
+  it("reads structured output from the raw OpenAI Responses REST payload", () => {
+    expect(readOpenAIOutputText({
+      output: [{ content: [{ type: "output_text", text: '{"name":"Kettle"}' }] }],
+    })).toBe('{"name":"Kettle"}');
+  });
+
   it("bootstraps one household per browser session", async () => {
     const test = convexTest(schema, modules);
     const first = await test.mutation(api.households.bootstrap, { sessionToken: "session-bootstrap-123456" });

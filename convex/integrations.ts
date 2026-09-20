@@ -16,6 +16,26 @@ function requireReceiptText(value: string) {
   return text;
 }
 
+type OpenAIResponsePayload = {
+  output_text?: string;
+  output?: Array<{
+    content?: Array<{
+      type?: string;
+      text?: string;
+    }>;
+  }>;
+};
+
+export function readOpenAIOutputText(payload: OpenAIResponsePayload) {
+  if (payload.output_text?.trim()) return payload.output_text;
+  for (const item of payload.output ?? []) {
+    for (const content of item.content ?? []) {
+      if (content.type === "output_text" && content.text?.trim()) return content.text;
+    }
+  }
+  return null;
+}
+
 async function extractReceipt(receiptText: string) {
   const openAIKey = process.env.OPENAI_API_KEY;
   let extracted = { name: "Smart Steam Kettle", brand: "Harbor & Finch", modelNumber: "HF K220", retailer: "Everyday Home" };
@@ -31,8 +51,9 @@ async function extractReceipt(receiptText: string) {
       }),
     });
     if (!response.ok) throw new Error(`OpenAI returned ${response.status}`);
-    const payload = await response.json() as { output_text?: string };
-    const parsed = JSON.parse(payload.output_text ?? "{}") as Partial<typeof extracted>;
+    const payload = await response.json() as OpenAIResponsePayload;
+    const outputText = readOpenAIOutputText(payload);
+    const parsed = JSON.parse(outputText ?? "{}") as Partial<typeof extracted>;
     if (!parsed.name || !parsed.brand || !parsed.modelNumber || !parsed.retailer) throw new Error("OpenAI returned incomplete product details");
     extracted = { name: parsed.name.trim(), brand: parsed.brand.trim(), modelNumber: parsed.modelNumber.trim().toUpperCase(), retailer: parsed.retailer.trim() };
   } else {

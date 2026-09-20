@@ -7,7 +7,7 @@ const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
 
 try {
   await page.goto(baseUrl, { waitUntil: "networkidle" });
-  await page.getByRole("button", { name: /open live demo/i }).first().click();
+  await page.getByRole("button", { name: /view guided demo/i }).click();
   await page.getByRole("heading", { name: "Overview" }).waitFor({ timeout: 30_000 });
 
   await page.getByRole("link", { name: /my inventory/i }).click();
