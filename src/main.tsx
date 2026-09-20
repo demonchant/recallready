@@ -5,6 +5,7 @@ import { BrowserRouter } from "react-router-dom";
 import "@fontsource-variable/manrope";
 import "@fontsource-variable/plus-jakarta-sans";
 import "./styles.css";
+import "./ui-fixes.css";
 import App from "./App";
 
 const convex = new ConvexReactClient(

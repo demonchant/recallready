@@ -1,0 +1,47 @@
+.home-chip {
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.home-chip:hover,
+.home-chip:focus-visible {
+  background: rgba(255, 255, 255, 0.11);
+  border-color: rgba(216, 248, 107, 0.28);
+  transform: translateY(-1px);
+  outline: none;
+}
+
+.activity-event {
+  width: 100%;
+  grid-template-columns: 75px 38px 1fr 20px;
+  border: 0;
+  border-bottom: 1px solid #e5e5de;
+  background: transparent;
+  text-align: left;
+  align-items: start;
+}
+
+.activity-event:hover,
+.activity-event:focus-visible {
+  background: #f4f6f0;
+  outline: none;
+}
+
+.event-arrow {
+  width: 16px;
+  color: #809087;
+  align-self: center;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.activity-event:hover .event-arrow,
+.activity-event:focus-visible .event-arrow {
+  color: #234c3b;
+  transform: translateX(3px);
+}
+
+@media (max-width: 650px) {
+  .activity-event {
+    grid-template-columns: 56px 32px 1fr 16px;
+    gap: 10px;
+  }
+}
