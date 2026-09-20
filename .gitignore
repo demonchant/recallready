@@ -1,0 +1,14 @@
+node_modules/
+dist/
+.env
+.env.local
+.env.*.local
+.env.example
+.convex/
+.agents/
+.claude/
+skills-lock.json
+output/
+*.log
+coverage/
+.DS_Store
