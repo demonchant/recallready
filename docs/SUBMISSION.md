@@ -8,6 +8,10 @@ RecallReady
 
 RecallReady turns household purchase emails into a living product inventory that finds verified recalls and guides families to a safe resolution.
 
+## Vibe Apps tagline
+
+Forward a receipt. RecallReady identifies the product, watches official recalls, and guides your household to safety.
+
 ## Short description
 
 Consumers miss product recalls because they do not remember exact model numbers or revisit fragmented government sites. RecallReady lets a household forward real purchase emails to AgentMail. A signed webhook routes the sender to the correct household, OpenAI extracts each product and model, Convex keeps the inventory and activity live, Firecrawl retrieves official recall sources, and AgentMail delivers evidence-backed alerts. Every match shows why it fired, links to the authority, and tracks the remedy through resolution.
@@ -37,7 +41,7 @@ Powered end to end by Convex, OpenAI, Firecrawl, and AgentMail.
 
 Live app: https://whimsical-rat-205.convex.site
 Public repo: https://github.com/demonchant/recallready
-Demo video: [add final video URL]
+Demo video: https://github.com/demonchant/recallready/blob/main/demo/RecallReady-Hackathon-Demo.mp4
 
 @convex @OpenAI @firecrawl @agentmail
 
@@ -53,7 +57,7 @@ Demo video: [add final video URL]
 - [x] AgentMail signed webhook registered and verified with a real email round trip
 - [x] OpenAI receipt extraction verified in production
 - [x] Firecrawl official-source retrieval verified in production
-- [ ] Demo video recorded and exported under three minutes
-- [ ] Demo video URL added to `hackathon.md` and this document
+- [x] Demo video recorded and exported at 2 minutes 20 seconds
+- [x] Demo video URL added to `hackathon.md` and this document
 - [ ] Social post published and linked
 - [ ] Application submitted at the official judging URL before September 22, 2026 at 12:00 PM PT

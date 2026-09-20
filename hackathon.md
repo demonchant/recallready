@@ -5,6 +5,7 @@
 - **What it does:** Turns household receipts into a shared product inventory, monitors official recall sources, and guides families from a verified safety match to resolution.
 - **Live app:** https://whimsical-rat-205.convex.site
 - **Repo:** https://github.com/demonchant/recallready
+- **Demo video:** https://github.com/demonchant/recallready/blob/main/demo/RecallReady-Hackathon-Demo.mp4
 - **Frontend:** Convex static hosting
 - **Convex deployment:** https://whimsical-rat-205.convex.cloud
 - **Components:** @convex-dev/static-hosting
@@ -12,7 +13,7 @@
 - **Auth:** Other (browser-scoped household sessions with server-side ownership checks)
 - **AI models:** gpt-5-mini
 - **Started:** 2026-09-19T22:18:23Z
-- **Last updated:** 2026-09-20T02:30:54Z
+- **Last updated:** 2026-09-20T03:58:00Z
 
 ## Log
 
@@ -37,8 +38,14 @@ Completed the real receipt workflow in production. A household registers its sen
 
 Verified Firecrawl retrieval against the official source, the AgentMail email-to-inventory round trip, OpenAI extraction, public static hosting, production health, a public repository, zero npm vulnerabilities, and clean Convex deployment insights. Convex features exercised include indexed queries, mutations, actions, HTTP actions, scheduling, realtime subscriptions, full-text search, and the static hosting component.
 
+### 2026-09-20 - submission build
+
+Completed the production polish pass. The household identity card now opens its settings, activity notifications have real destinations, and the notification indicator clears after the activity feed is viewed. Re-ran the complete automated test, lint, typecheck, and production build suite before deploying the corrected bundle.
+
+Edited the final hackathon demonstration to 2 minutes 20 seconds. The video removes all troubleshooting footage and shows the real product path: live sponsor integrations, a real AgentMail purchase email, OpenAI extraction, Convex realtime inventory, Firecrawl-backed matching, and the evidence-led recall detail. Added branded opening and closing cards plus a concise voiceover focused on the problem and shipped solution.
+
 ## Submission status
 
-- **Demo video:** Pending final under-three-minute recording.
+- **Demo video:** Complete — 2 minutes 20 seconds, public in the repository.
 - **Social post:** Pending publication.
-- **Judging submission:** Pending final video and social links.
+- **Judging submission:** Ready for the final social URL and form submission.
