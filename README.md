@@ -66,7 +66,7 @@ npx convex env set AGENTMAIL_WEBHOOK_SECRET
 Register the AgentMail `message.received` webhook at:
 
 ```text
-https://YOUR_DEPLOYMENT.convex.site/webhooks/agentmail
+https://YOUR_DEPLOYMENT.convex.site/api/webhooks/agentmail
 ```
 
 Set `AGENTMAIL_WEBHOOK_SECRET` to the `whsec_...` signing secret shown when the AgentMail webhook is created. RecallReady verifies the standard `svix-id`, `svix-timestamp`, and `svix-signature` headers.
