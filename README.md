@@ -66,7 +66,7 @@ npx convex env set AGENTMAIL_WEBHOOK_SECRET
 Register the AgentMail `message.received` webhook at:
 
 ```text
-https://YOUR_DEPLOYMENT.convex.site/api/webhooks/agentmail
+https://YOUR_DEPLOYMENT.convex.site/webhooks/agentmail
 ```
 
 Use the custom request header `x-recallready-secret` with the configured webhook secret.
