@@ -5,8 +5,17 @@ export const householdByInbox = internalQuery({
   args: { inboxEmail: v.string() },
   returns: v.union(v.null(), v.id("households")),
   handler: async (ctx, args) => {
-    const home = await ctx.db.query("households").withIndex("by_inbox_email", (index) => index.eq("inboxEmail", args.inboxEmail.trim().toLowerCase())).unique();
+    const home = await ctx.db.query("households").withIndex("by_inbox_email", (index) => index.eq("inboxEmail", args.inboxEmail.trim().toLowerCase())).first();
     return home?._id ?? null;
+  },
+});
+
+export const householdBySender = internalQuery({
+  args: { senderEmail: v.string() },
+  returns: v.union(v.null(), v.id("households")),
+  handler: async (ctx, args) => {
+    const member = await ctx.db.query("members").withIndex("by_email", (index) => index.eq("email", args.senderEmail.trim().toLowerCase())).first();
+    return member?.householdId ?? null;
   },
 });
 

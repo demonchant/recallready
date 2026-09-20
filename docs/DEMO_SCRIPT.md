@@ -1,49 +1,59 @@
 # Demo script
 
-Target runtime: 2 minutes 35 seconds.
+Target runtime: 2 minutes 40 seconds. The recording must show the production app and a real email entering AgentMail.
 
-## 0:00 to 0:20 · The problem
+## Before recording
 
-Open the landing page.
+- Use a dedicated demo sender email and save it in Household Settings.
+- Open the production app in a fresh Incognito window.
+- Prepare a real email containing `CookWell Air Fryer Pro` and model `CW AF900`.
+- Record only the browser window at 1920x1080. Do not show terminals, secrets, dashboards, bookmarks, or personal mail.
+- Keep the final export under three minutes.
 
-“A recalled appliance can sit in a home for months because current systems expect people to remember every model they own and keep checking fragmented government websites. RecallReady makes the warning find the household.”
+## 0:00 to 0:18 - The problem
 
-Click **Protect a demo home**.
+Show the landing hero and family safety imagery.
 
-## 0:20 to 0:48 · Convex realtime home
+“Product recalls fail when families are expected to remember every model they own and repeatedly search government websites. RecallReady makes the warning find the household instead.”
 
-On the overview, point out the protection score, four protected products, three watched sources, and the open action.
+Click **Try the live product**.
 
-“Convex is the system of record. The inventory, safety matches, activity trail, and resolution state are live subscriptions, so every household member sees changes immediately.”
+## 0:18 to 0:42 - Real household onboarding
 
-Click **Check sources now** and let the retrieval animation complete.
+In Household Settings, enter a household name, member name, and the dedicated sender email. Save the profile.
 
-## 0:48 to 1:20 · Sponsor workflow
+“A real user starts with an empty household. Their saved email securely routes forwarded purchase messages to the correct Convex household.”
 
-Open **Receipt inbox**.
+Open **Receipt inbox** and briefly show the configured AgentMail address.
 
-“A customer forwards any order confirmation to an AgentMail inbox. This webhook is idempotent. OpenAI extracts the exact product details through a strict schema, then Convex begins watching the new model.”
+## 0:42 to 1:18 - Actual AgentMail receipt
 
-Click **Process this receipt**. Let all three processing stages finish and arrive at the updated inventory.
+Switch to the dedicated email account and forward the prepared receipt to the AgentMail address. Return immediately to RecallReady and open **My inventory**.
 
-“Firecrawl does real retrieval from official recall pages. The prototype records each source run, including success or failure, so the system never silently pretends a check happened.”
+“This is a real email, not pasted demo data. AgentMail receives it and sends a signed webhook to Convex. OpenAI extracts the product, brand, retailer, and exact model. Convex creates the inventory record and updates the interface in real time.”
 
-## 1:20 to 2:08 · Evidence and action
+Wait for the CookWell product to appear automatically.
 
-Return to the overview and click **Review safety action**.
+## 1:18 to 1:45 - Live Firecrawl retrieval
 
-“This is not a vague AI warning. RecallReady shows the exact model comparison, confidence, authority, retrieved source, hazard, and official remedy. This sample is clearly marked as a demonstration fixture.”
+Return to **Overview** and click **Check sources now**. Let the retrieval complete.
 
-Click **Email this to me**.
+“Firecrawl retrieves the official product safety source. RecallReady records the source run, checks the household inventory, and creates an explainable match when the brand and model agree.”
 
-“AgentMail sends the same evidence backed action to the household.”
+## 1:45 to 2:22 - Evidence and action
 
-Click **Mark as resolved**.
+Open **Review safety action** and show the exact model comparison, authority, hazard, source, and remedy.
 
-## 2:08 to 2:35 · Close
+“This is not a vague AI warning. The household sees why the alert fired, which authority published it, and the precise action required.”
 
-Show the updated overview or Activity page.
+Click **Email this to me**, then **Mark as resolved**.
 
-“The resolution is now part of the permanent household trail and every screen updates through Convex. RecallReady turns receipts people already receive into a living safety net they can actually use this week.”
+“AgentMail delivers the evidence-backed safety alert, and the completed remedy becomes part of the household’s permanent activity trail.”
 
-End on the landing hero and live URL.
+## 2:22 to 2:40 - Close
+
+Open **Activity** and show the receipt, source check, match, alert, and resolution events.
+
+“RecallReady turns an email families already receive into continuous product protection, powered end to end by Convex, OpenAI, Firecrawl, and AgentMail.”
+
+Finish on the RecallReady logo or landing hero.

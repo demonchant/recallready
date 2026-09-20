@@ -29,13 +29,13 @@ flowchart LR
 | Source provenance | Every recall stores the authority, source URL, publication time, retrieval time, and demonstration flag. |
 | Match explainability | A match persists its confidence and plain language evidence alongside both record identifiers. |
 | External network calls | Firecrawl, OpenAI, and AgentMail run only inside Convex actions. Keys never enter the browser bundle. |
-| Webhook access | The endpoint supports a deployment secret in a custom request header. |
+| Webhook access | AgentMail requests require valid, timestamp-bounded Svix HMAC signatures before payload processing. |
 | Irreversible state | A household member must explicitly mark a remedy as resolved. The system never hides an open match automatically. |
 
 ## Convex data model
 
-- `households` stores the shared protection boundary and private inbox alias.
-- `members` connects a browser session to one household.
+- `households` stores the shared protection boundary and configured AgentMail intake address.
+- `members` connects a browser session and registered sender email to one household.
 - `products` stores exact identifying data and source provenance.
 - `recalls` stores official notice evidence.
 - `matches` joins products to recalls with confidence and resolution state.

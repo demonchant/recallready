@@ -8,7 +8,7 @@ export default defineSchema({
   members: defineTable({
     householdId: v.id("households"), sessionToken: v.string(), displayName: v.string(), email: v.optional(v.string()),
     role: v.union(v.literal("owner"), v.literal("member")), joinedAt: v.number(),
-  }).index("by_session", ["sessionToken"]).index("by_household", ["householdId"]),
+  }).index("by_session", ["sessionToken"]).index("by_household", ["householdId"]).index("by_email", ["email"]),
   products: defineTable({
     householdId: v.id("households"), name: v.string(), brand: v.string(), modelNumber: v.string(), serialNumber: v.optional(v.string()),
     category: v.string(), room: v.string(), purchaseDate: v.optional(v.string()), retailer: v.optional(v.string()),

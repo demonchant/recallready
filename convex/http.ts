@@ -1,6 +1,7 @@
 import { httpRouter } from "convex/server";
 import { httpAction } from "./_generated/server";
 import { internal } from "./_generated/api";
+import { configuredAgentMailInbox } from "./lib/agentmail";
 
 const http = httpRouter();
 
@@ -12,6 +13,10 @@ http.route({
 
 function stringArray(value: unknown) {
   return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
+}
+
+function emailAddress(value: string) {
+  return value.match(/<([^<>\s]+@[^<>\s]+)>/)?.[1]?.toLowerCase() ?? value.match(/[^\s<>]+@[^\s<>]+/)?.[0]?.toLowerCase() ?? null;
 }
 
 function constantTimeEqual(left: string, right: string) {
@@ -57,17 +62,20 @@ http.route({
     const body = typeof message.text === "string" ? message.text : typeof message.preview === "string" ? message.preview : "";
     const recipients = [...stringArray(message.to), ...stringArray(message.to_)];
     if (typeof message.inbox_email === "string") recipients.push(message.inbox_email);
-    const inboxEmail = recipients.map((value) => value.trim().toLowerCase()).find((value) => value.includes("@"));
-    if (!inboxEmail || !body.trim()) return new Response("Recipient and message text are required", { status: 400 });
-    const householdId = await ctx.runQuery(internal.mail.householdByInbox, { inboxEmail });
-    if (!householdId) return new Response("Unknown RecallReady inbox", { status: 404 });
+    const inboxEmail = recipients.map(emailAddress).find((value): value is string => Boolean(value));
+    const senderCandidates = [...stringArray(message.from_), ...(typeof message.from === "string" ? [message.from] : [])];
+    const senderEmail = senderCandidates.map(emailAddress).find((value): value is string => Boolean(value));
+    if (!inboxEmail || !senderEmail || !body.trim()) return new Response("Sender, recipient and message text are required", { status: 400 });
+    let householdId = await ctx.runQuery(internal.mail.householdBySender, { senderEmail });
+    if (!householdId && inboxEmail !== configuredAgentMailInbox()) householdId = await ctx.runQuery(internal.mail.householdByInbox, { inboxEmail });
+    if (!householdId) return new Response("Unknown receipt sender. Save this email in RecallReady Household Settings first.", { status: 404 });
 
     const eventId = typeof root.event_id === "string" && root.event_id.trim() ? root.event_id : crypto.randomUUID();
     const inbound = await ctx.runMutation(internal.mail.recordInbound, {
       eventId,
       inboxId: typeof message.inbox_id === "string" ? message.inbox_id : "unknown",
       householdId,
-      sender: stringArray(message.from_)[0] ?? (typeof message.from === "string" ? message.from : "unknown"),
+      sender: senderEmail,
       subject: typeof message.subject === "string" ? message.subject : "Forwarded receipt",
       body,
     });

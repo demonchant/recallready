@@ -23,7 +23,7 @@ RecallReady reverses the workflow:
 - Live household protection overview and score
 - Searchable, filterable shared product inventory
 - Dedicated manual product entry flow
-- Receipt inbox and interactive OpenAI extraction flow
+- Real AgentMail inbox ingestion and manual OpenAI receipt import
 - Verified recall detail with match evidence and official source
 - Guided remedy and resolution state
 - Realtime household activity history
@@ -70,6 +70,8 @@ https://YOUR_DEPLOYMENT.convex.site/api/webhooks/agentmail
 ```
 
 Set `AGENTMAIL_WEBHOOK_SECRET` to the `whsec_...` signing secret shown when the AgentMail webhook is created. RecallReady verifies the standard `svix-id`, `svix-timestamp`, and `svix-signature` headers.
+
+Users save their sender email in Household Settings, then forward purchase messages to the configured AgentMail inbox. The signed webhook routes each authenticated sender to the correct household before OpenAI extraction and Convex inventory creation.
 
 ## Verify
 

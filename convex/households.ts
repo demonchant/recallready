@@ -1,6 +1,7 @@
 import { internalQuery, mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { requireMember, requireText } from "./lib/auth";
+import { configuredAgentMailInbox } from "./lib/agentmail";
 
 export const bootstrap = mutation({
   args: { sessionToken: v.string(), mode: v.optional(v.union(v.literal("demo"), v.literal("fresh"))) },
@@ -10,7 +11,7 @@ export const bootstrap = mutation({
     if (member) {
       const home = await ctx.db.get(member.householdId);
       if (!home) throw new Error("Household not found");
-      return { householdId: home._id, householdName: home.name, inboxEmail: home.inboxEmail, created: false };
+      return { householdId: home._id, householdName: home.name, inboxEmail: configuredAgentMailInbox(), created: false };
     }
     const sessionToken = requireText(args.sessionToken, "Session token", 200);
     const timestamp = Date.now();
@@ -18,9 +19,10 @@ export const bootstrap = mutation({
     const isFresh = args.mode === "fresh";
     const householdName = isFresh ? "My Household" : "The Morgan Home";
     const memberName = isFresh ? "Household owner" : "Alex Morgan";
-    const householdId = await ctx.db.insert("households", { name: householdName, slug: `${isFresh ? "home" : "morgan"}${suffix}`, inboxEmail: `protect${suffix}@agentmail.to`, protectionSince: isFresh ? timestamp : timestamp - 15_897_600_000 });
+    const inboxEmail = configuredAgentMailInbox();
+    const householdId = await ctx.db.insert("households", { name: householdName, slug: `${isFresh ? "home" : "morgan"}${suffix}`, inboxEmail, protectionSince: isFresh ? timestamp : timestamp - 15_897_600_000 });
     await ctx.db.insert("members", { householdId, sessionToken, displayName: memberName, role: "owner", joinedAt: timestamp });
-    if (isFresh) return { householdId, householdName, inboxEmail: `protect${suffix}@agentmail.to`, created: true };
+    if (isFresh) return { householdId, householdName, inboxEmail, created: true };
     const recallId = await ctx.db.insert("recalls", {
       externalId: `DEMO-CPSC-${suffix}`, agency: "U.S. CPSC", title: "CookWell countertop air fryers recalled over overheating risk",
       brands: ["CookWell"], modelNumbers: ["CW AF900", "CW AF910"], hazard: "A wiring fault can cause the unit to overheat during extended use, creating a fire hazard.",
@@ -45,7 +47,7 @@ export const bootstrap = mutation({
       { type: "receipt_processed" as const, title: "Purchase email understood", detail: "OpenAI extracted the air fryer model from a forwarded receipt.", createdAt: timestamp - 10_540_800_000 },
     ];
     for (const event of events) await ctx.db.insert("events", { householdId, ...event });
-    return { householdId, householdName, inboxEmail: `protect${suffix}@agentmail.to`, created: true };
+    return { householdId, householdName, inboxEmail, created: true };
   },
 });
 
@@ -65,7 +67,7 @@ export const current = query({
     const member = await ctx.db.query("members").withIndex("by_session", (q) => q.eq("sessionToken", args.sessionToken)).unique();
     if (!member) return null;
     const home = await ctx.db.get(member.householdId);
-    return home ? { householdId: home._id, name: home.name, inboxEmail: home.inboxEmail, protectionSince: home.protectionSince, memberName: member.displayName, memberEmail: member.email } : null;
+    return home ? { householdId: home._id, name: home.name, inboxEmail: configuredAgentMailInbox(), protectionSince: home.protectionSince, memberName: member.displayName, memberEmail: member.email } : null;
   },
 });
 
@@ -78,6 +80,10 @@ export const updateProfile = mutation({
     const memberName = requireText(args.memberName, "Member name", 80);
     const memberEmail = args.memberEmail?.trim().toLowerCase() || undefined;
     if (memberEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(memberEmail)) throw new Error("Enter a valid email address");
+    if (memberEmail) {
+      const matches = await ctx.db.query("members").withIndex("by_email", (index) => index.eq("email", memberEmail)).take(2);
+      if (matches.some((match) => match._id !== member._id)) throw new Error("That sender email is already connected to another household");
+    }
     await ctx.db.patch(member.householdId, { name });
     await ctx.db.patch(member._id, { displayName: memberName, email: memberEmail });
     return null;

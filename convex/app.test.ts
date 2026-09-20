@@ -35,8 +35,23 @@ describe("RecallReady Convex backend", () => {
     const overview = await test.query(api.dashboard.overview, { sessionToken, householdId: home.householdId });
 
     expect(home.householdName).toBe("My Household");
+    expect(home.inboxEmail).toBe("recallready@agentmail.to");
     expect(overview.products).toHaveLength(0);
     expect(overview.matches).toHaveLength(0);
+  });
+
+  it("routes AgentMail receipts by the sender email saved on the household", async () => {
+    const test = convexTest(schema, modules);
+    const sessionToken = "session-email-routing-123456";
+    const home = await test.mutation(api.households.bootstrap, { sessionToken, mode: "fresh" });
+    await test.mutation(api.households.updateProfile, {
+      sessionToken,
+      name: "Email Routed Home",
+      memberName: "Jordan Morgan",
+      memberEmail: "jordan@example.com",
+    });
+
+    expect(await test.query(internal.mail.householdBySender, { senderEmail: "JORDAN@example.com" })).toBe(home.householdId);
   });
 
   it("rejects cross-household product access", async () => {

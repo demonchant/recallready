@@ -6,22 +6,22 @@ RecallReady
 
 ## One line
 
-RecallReady turns household receipts into a living product inventory that finds verified recalls and guides families to a safe resolution.
+RecallReady turns household purchase emails into a living product inventory that finds verified recalls and guides families to a safe resolution.
 
 ## Short description
 
-Consumers miss product recalls because they do not remember exact model numbers or revisit fragmented government sites. RecallReady lets a household forward purchase emails to a private AgentMail inbox. OpenAI extracts each product and model, Convex keeps the shared inventory and activity live, Firecrawl retrieves official recall notices, and AgentMail delivers evidence backed alerts. Every match shows why it fired, links to the authority, and tracks the remedy through resolution.
+Consumers miss product recalls because they do not remember exact model numbers or revisit fragmented government sites. RecallReady lets a household forward real purchase emails to AgentMail. A signed webhook routes the sender to the correct household, OpenAI extracts each product and model, Convex keeps the inventory and activity live, Firecrawl retrieves official recall sources, and AgentMail delivers evidence-backed alerts. Every match shows why it fired, links to the authority, and tracks the remedy through resolution.
 
 ## Why people would use it this week
 
-There is no new behavior to learn. People already receive receipts and order confirmations. Forwarding one email creates lasting protection for that purchase, while the shared home view helps partners, parents, and caregivers coordinate action.
+There is no new habit to learn. People already receive receipts and order confirmations. Forwarding one email creates lasting protection for that purchase, while the shared home view helps partners, parents, and caregivers coordinate action.
 
 ## Sponsor stack
 
-- **Convex:** primary database, indexed household model, mutations, actions, HTTP webhook, realtime subscriptions, audit events, and static frontend hosting.
-- **OpenAI:** strict schema extraction of product identity from messy receipt and order text.
-- **Firecrawl:** retrieval of official recall pages with durable source run evidence.
-- **AgentMail:** private receipt inbox, inbound message webhook, and outbound safety alerts.
+- **Convex:** primary database, indexed household model, queries, mutations, actions, scheduled processing, signed HTTP webhook, realtime subscriptions, full-text search, audit events, and static frontend hosting.
+- **OpenAI:** strict-schema extraction of product identity from real receipt and order email content.
+- **Firecrawl:** live retrieval of the official CPSC recall source with durable source-run evidence and matching triggers.
+- **AgentMail:** real inbound receipt delivery, signed `message.received` webhooks, sender-to-household routing, and outbound safety alerts.
 
 ## Differentiation
 
@@ -31,25 +31,29 @@ RecallReady is not another recall search box. It remembers what a household owns
 
 We built RecallReady for the Convex All Gas Hackathon.
 
-Forward a purchase receipt. RecallReady identifies the exact product, watches official safety notices, and gives your household a verified action when a model is recalled.
+Forward a real purchase email. RecallReady identifies the exact product, watches official safety notices, and gives your household a verified action when a model is recalled.
 
-Powered by Convex, OpenAI, Firecrawl, and AgentMail.
+Powered end to end by Convex, OpenAI, Firecrawl, and AgentMail.
 
-Live demo: [add live URL]
-Demo video: [add video URL]
+Live app: https://whimsical-rat-205.convex.site
+Public repo: https://github.com/demonchant/recallready
+Demo video: [add final video URL]
 
 @convex @OpenAI @firecrawl @agentmail
 
 ## Final checklist
 
-- [ ] Public `convex.site` URL
-- [ ] Public GitHub repository
+- [x] Public `convex.site` URL
+- [x] Public GitHub repository
 - [x] `hackathon.md` at repository root
 - [x] Convex static hosting configured
-- [x] Production build passes
+- [x] Production build, typecheck, lint, and automated tests pass
 - [x] Zero known npm vulnerabilities
-- [ ] Sponsor credentials configured on the production Convex deployment
-- [ ] AgentMail webhook registered
-- [ ] Demo video under three minutes
+- [x] Sponsor credentials configured on the production Convex deployment
+- [x] AgentMail signed webhook registered and verified with a real email round trip
+- [x] OpenAI receipt extraction verified in production
+- [x] Firecrawl official-source retrieval verified in production
+- [ ] Demo video recorded and exported under three minutes
+- [ ] Demo video URL added to `hackathon.md` and this document
 - [ ] Social post published and linked
-- [ ] Submitted at the official judging URL before the deadline
+- [ ] Application submitted at the official judging URL before September 22, 2026 at 12:00 PM PT

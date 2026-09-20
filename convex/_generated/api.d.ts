@@ -13,6 +13,7 @@ import type * as dashboard from "../dashboard.js";
 import type * as households from "../households.js";
 import type * as http from "../http.js";
 import type * as integrations from "../integrations.js";
+import type * as lib_agentmail from "../lib/agentmail.js";
 import type * as lib_auth from "../lib/auth.js";
 import type * as mail from "../mail.js";
 import type * as products from "../products.js";
@@ -30,6 +31,7 @@ declare const fullApi: ApiFromModules<{
   households: typeof households;
   http: typeof http;
   integrations: typeof integrations;
+  "lib/agentmail": typeof lib_agentmail;
   "lib/auth": typeof lib_auth;
   mail: typeof mail;
   products: typeof products;
