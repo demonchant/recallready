@@ -35,7 +35,7 @@ describe("RecallReady Convex backend", () => {
     const overview = await test.query(api.dashboard.overview, { sessionToken, householdId: home.householdId });
 
     expect(home.householdName).toBe("My Household");
-    expect(home.inboxEmail).toBe("recallready@agentmail.to");
+    expect(home.inboxEmail).toBe("provisioning@recallready.invalid");
     expect(overview.products).toHaveLength(0);
     expect(overview.matches).toHaveLength(0);
   });
@@ -65,7 +65,7 @@ describe("RecallReady Convex backend", () => {
   it("supports adding, editing, and removing a protected product", async () => {
     const test = convexTest(schema, modules);
     const sessionToken = "session-products-123456";
-    const home = await test.mutation(api.households.bootstrap, { sessionToken });
+    const home = await test.mutation(api.households.bootstrap, { sessionToken, mode: "fresh" });
     const productId = await test.mutation(api.products.add, {
       sessionToken,
       householdId: home.householdId,
@@ -94,7 +94,7 @@ describe("RecallReady Convex backend", () => {
   it("creates one exact-model match and keeps matching idempotent", async () => {
     const test = convexTest(schema, modules);
     const sessionToken = "session-matcher-123456";
-    const home = await test.mutation(api.households.bootstrap, { sessionToken });
+    const home = await test.mutation(api.households.bootstrap, { sessionToken, mode: "fresh" });
     await test.mutation(api.products.add, {
       sessionToken,
       householdId: home.householdId,
@@ -127,19 +127,13 @@ describe("RecallReady Convex backend", () => {
     expect(overview.matches.some((match) => match.product.modelNumber === "SH-T10")).toBe(true);
   });
 
-  it("resolves a safety match idempotently", async () => {
+  it("locks resolution actions in the public guided demo", async () => {
     const test = convexTest(schema, modules);
     const sessionToken = "session-resolution-123456";
     const home = await test.mutation(api.households.bootstrap, { sessionToken });
     const overview = await test.query(api.dashboard.overview, { sessionToken, householdId: home.householdId });
     const match = overview.matches[0];
 
-    await test.mutation(api.recalls.setStatus, { sessionToken, matchId: match._id, status: "resolved" });
-    await test.mutation(api.recalls.setStatus, { sessionToken, matchId: match._id, status: "resolved" });
-
-    const updated = await test.query(api.recalls.getMatch, { sessionToken, matchId: match._id });
-    const activity = await test.query(api.dashboard.activity, { sessionToken, householdId: home.householdId });
-    expect(updated?.match.status).toBe("resolved");
-    expect(activity.filter((event) => event.type === "match_resolved")).toHaveLength(1);
+    await expect(test.mutation(api.recalls.setStatus, { sessionToken, matchId: match._id, status: "resolved" })).rejects.toThrow("Guided demo actions are read-only");
   });
 });

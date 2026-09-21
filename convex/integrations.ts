@@ -121,7 +121,8 @@ export const scanLatest = action({
   args: { sessionToken: v.string() },
   returns: v.object({ provider: v.union(v.literal("firecrawl"), v.literal("demo")), recordsFound: v.number(), matchesFound: v.number(), message: v.string() }),
   handler: async (ctx, args): Promise<{ provider: "firecrawl" | "demo"; recordsFound: number; matchesFound: number; message: string }> => {
-    const authorization: { householdId: Id<"households">; memberEmail?: string } = await ctx.runQuery(internal.households.authorize, { sessionToken: args.sessionToken });
+    const authorization: { householdId: Id<"households">; memberEmail?: string; mode: "demo" | "fresh" } = await ctx.runQuery(internal.households.authorize, { sessionToken: args.sessionToken });
+    if (authorization.mode === "demo") throw new Error("Guided demo records are read-only. Start a household to check live sources.");
     const householdId = authorization.householdId;
     const firecrawlKey = process.env.FIRECRAWL_API_KEY;
     const provider = firecrawlKey ? "firecrawl" as const : "demo" as const;
@@ -162,7 +163,8 @@ export const processReceipt = action({
   args: { sessionToken: v.string(), receiptText: v.string() },
   returns: v.object({ productId: v.id("products"), usedOpenAI: v.boolean(), productName: v.string(), matchesFound: v.number() }),
   handler: async (ctx, args): Promise<{ productId: Id<"products">; usedOpenAI: boolean; productName: string; matchesFound: number }> => {
-    const { householdId } = await ctx.runQuery(internal.households.authorize, { sessionToken: args.sessionToken });
+    const { householdId, mode } = await ctx.runQuery(internal.households.authorize, { sessionToken: args.sessionToken });
+    if (mode === "demo") throw new Error("Guided demo records are read-only. Start a household to import a receipt.");
     const { extracted, usedOpenAI } = await extractReceipt(requireReceiptText(args.receiptText));
     const productId = await ctx.runMutation(internal.integrations.createProductFromReceipt, { householdId, ...extracted, source: "receipt" });
     const matchesFound = await ctx.runMutation(internal.integrations.matchHouseholdProducts, { householdId });

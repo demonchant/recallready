@@ -66,6 +66,8 @@ export const add = mutation({
   returns: v.id("products"),
   handler: async (ctx, args) => {
     await requireHouseholdAccess(ctx, args.sessionToken, args.householdId);
+    const home = await ctx.db.get(args.householdId);
+    if (home?.mode === "demo") throw new Error("Guided demo records are read-only. Start a household to add products.");
     const product = normalizeProductInput(args);
     const productId = await ctx.db.insert("products", { householdId: args.householdId, ...product, source: "manual", status: "clear", addedAt: Date.now() });
     await ctx.db.insert("events", { householdId: args.householdId, type: "product_added", title: `${product.name} added`, detail: `${product.brand} ${product.modelNumber} is now watched for new safety notices.`, createdAt: Date.now() });
@@ -91,6 +93,8 @@ export const update = mutation({
     const product = await ctx.db.get(args.productId);
     if (!product) throw new Error("Product not found");
     await requireHouseholdAccess(ctx, args.sessionToken, product.householdId);
+    const home = await ctx.db.get(product.householdId);
+    if (home?.mode === "demo") throw new Error("Guided demo records are read-only. Start a household to edit products.");
     const update = normalizeProductInput(args);
     await ctx.db.patch(args.productId, update);
     await ctx.db.insert("events", { householdId: product.householdId, type: "product_updated", title: `${update.name} updated`, detail: `The product identity and location details were updated.`, createdAt: Date.now() });
@@ -105,6 +109,8 @@ export const remove = mutation({
     const product = await ctx.db.get(args.productId);
     if (!product) return null;
     await requireHouseholdAccess(ctx, args.sessionToken, product.householdId);
+    const home = await ctx.db.get(product.householdId);
+    if (home?.mode === "demo") throw new Error("Guided demo records are read-only. Start a household to remove products.");
     const matches = await ctx.db.query("matches").withIndex("by_product", (query) => query.eq("productId", args.productId)).take(100);
     for (const match of matches) await ctx.db.delete(match._id);
     await ctx.db.delete(args.productId);

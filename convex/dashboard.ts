@@ -14,7 +14,7 @@ const matchValidator = v.object({
 const eventValidator = v.object({
   _id: v.id("events"), _creationTime: v.number(), householdId: v.id("households"), type: v.union(v.literal("product_added"), v.literal("product_updated"), v.literal("product_removed"), v.literal("receipt_processed"), v.literal("scan_completed"), v.literal("match_found"), v.literal("alert_sent"), v.literal("match_resolved")), title: v.string(), detail: v.string(), createdAt: v.number(),
 });
-const householdValidator = v.object({ _id: v.id("households"), _creationTime: v.number(), name: v.string(), slug: v.string(), inboxEmail: v.string(), protectionSince: v.number() });
+const householdValidator = v.object({ _id: v.id("households"), _creationTime: v.number(), name: v.string(), slug: v.string(), inboxEmail: v.string(), protectionSince: v.number(), mode: v.optional(v.union(v.literal("demo"), v.literal("fresh"))), inboxReady: v.optional(v.boolean()) });
 const sourceRunValidator = v.object({ _id: v.id("sourceRuns"), _creationTime: v.number(), householdId: v.id("households"), provider: v.union(v.literal("firecrawl"), v.literal("demo")), sourceUrl: v.string(), status: v.union(v.literal("running"), v.literal("completed"), v.literal("failed")), recordsFound: v.number(), startedAt: v.number(), completedAt: v.optional(v.number()), error: v.optional(v.string()) });
 
 export const overview = query({

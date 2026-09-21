@@ -2,7 +2,7 @@ import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
 export default defineSchema({
-  households: defineTable({ name: v.string(), slug: v.string(), inboxEmail: v.string(), protectionSince: v.number() })
+  households: defineTable({ name: v.string(), slug: v.string(), inboxEmail: v.string(), protectionSince: v.number(), mode: v.optional(v.union(v.literal("demo"), v.literal("fresh"))), inboxReady: v.optional(v.boolean()) })
     .index("by_slug", ["slug"])
     .index("by_inbox_email", ["inboxEmail"]),
   members: defineTable({

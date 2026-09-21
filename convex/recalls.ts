@@ -32,6 +32,8 @@ export const setStatus = mutation({
     const match = await ctx.db.get(args.matchId);
     if (!match) throw new Error("Recall match not found");
     await requireHouseholdAccess(ctx, args.sessionToken, match.householdId);
+    const home = await ctx.db.get(match.householdId);
+    if (home?.mode === "demo") throw new Error("Guided demo actions are read-only. Start a household to track a resolution.");
     if (match.status === args.status || match.status === "resolved") return null;
     await ctx.db.patch(args.matchId, { status: args.status, resolvedAt: args.status === "resolved" ? Date.now() : undefined });
     if (args.status === "resolved") {
