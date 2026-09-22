@@ -52,6 +52,8 @@ export const alertContext = internalQuery({
   returns: v.object({ householdId: v.id("households"), recipient: v.string(), productName: v.string(), modelNumber: v.string(), agency: v.string(), hazard: v.string(), remedy: v.string(), sourceUrl: v.string() }),
   handler: async (ctx, args) => {
     const member = await requireMember(ctx, args.sessionToken);
+    const home = await ctx.db.get(member.householdId);
+    if (home?.mode === "demo") throw new Error("Guided demo actions are read-only. Start a household to send an alert.");
     if (!member.email) throw new Error("Add your email address in Settings before sending an alert");
     const match = await ctx.db.get(args.matchId);
     if (!match || match.householdId !== member.householdId) throw new Error("Recall match not found");

@@ -1,8 +1,10 @@
-import { internalAction, internalMutation, internalQuery, mutation, query } from "./_generated/server";
+import { internalQuery, mutation, query } from "./_generated/server";
 import { v } from "convex/values";
-import { internal } from "./_generated/api";
 import { requireMember, requireText } from "./lib/auth";
 import { configuredAgentMailInbox } from "./lib/agentmail";
+
+const LEGACY_PROVISIONING_INBOX = "provisioning@recallready.invalid";
+const DEMO_INBOX_PLACEHOLDER = "guided-demo@recallready.invalid";
 
 export const bootstrap = mutation({
   args: { sessionToken: v.string(), mode: v.optional(v.union(v.literal("demo"), v.literal("fresh"))) },
@@ -20,11 +22,10 @@ export const bootstrap = mutation({
     const isFresh = args.mode === "fresh";
     const householdName = isFresh ? "My Household" : "The Morgan Home";
     const memberName = isFresh ? "Household owner" : "Alex Morgan";
-    const inboxEmail = isFresh ? "provisioning@recallready.invalid" : configuredAgentMailInbox();
-    const householdId = await ctx.db.insert("households", { name: householdName, slug: `${isFresh ? "home" : "morgan"}${suffix}`, inboxEmail, protectionSince: isFresh ? timestamp : timestamp - 15_897_600_000, mode: isFresh ? "fresh" : "demo", inboxReady: !isFresh });
+    const inboxEmail = isFresh ? configuredAgentMailInbox() : DEMO_INBOX_PLACEHOLDER;
+    const householdId = await ctx.db.insert("households", { name: householdName, slug: `${isFresh ? "home" : "morgan"}${suffix}`, inboxEmail, protectionSince: isFresh ? timestamp : timestamp - 15_897_600_000, mode: isFresh ? "fresh" : "demo", inboxReady: isFresh });
     await ctx.db.insert("members", { householdId, sessionToken, displayName: memberName, role: "owner", joinedAt: timestamp });
     if (isFresh) {
-      await ctx.scheduler.runAfter(0, internal.households.provisionInbox, { householdId });
       return { householdId, householdName, inboxEmail, created: true };
     }
     const recallId = await ctx.db.insert("recalls", {
@@ -73,7 +74,15 @@ export const current = query({
     const member = await ctx.db.query("members").withIndex("by_session", (q) => q.eq("sessionToken", args.sessionToken)).unique();
     if (!member) return null;
     const home = await ctx.db.get(member.householdId);
-    return home ? { householdId: home._id, name: home.name, inboxEmail: home.inboxEmail, protectionSince: home.protectionSince, memberName: member.displayName, memberEmail: member.email, mode: home.mode ?? "demo", inboxReady: home.inboxReady ?? home.inboxEmail !== "provisioning@recallready.invalid" } : null;
+    if (!home) return null;
+    const mode = home.mode ?? "demo";
+    const isDemo = mode === "demo";
+    const inboxEmail = isDemo
+      ? DEMO_INBOX_PLACEHOLDER
+      : home.inboxEmail === LEGACY_PROVISIONING_INBOX
+        ? configuredAgentMailInbox()
+        : home.inboxEmail;
+    return { householdId: home._id, name: home.name, inboxEmail, protectionSince: home.protectionSince, memberName: member.displayName, memberEmail: member.email, mode, inboxReady: !isDemo && (home.inboxReady ?? home.inboxEmail !== LEGACY_PROVISIONING_INBOX) };
   },
 });
 
@@ -105,35 +114,5 @@ export const authorize = internalQuery({
     const member = await requireMember(ctx, args.sessionToken);
     const home = await ctx.db.get(member.householdId);
     return { householdId: member.householdId, memberEmail: member.email, mode: home?.mode ?? "demo" };
-  },
-});
-
-export const setInbox = internalMutation({
-  args: { householdId: v.id("households"), inboxEmail: v.string(), inboxReady: v.boolean() },
-  returns: v.null(),
-  handler: async (ctx, args) => {
-    await ctx.db.patch(args.householdId, { inboxEmail: args.inboxEmail.trim().toLowerCase(), inboxReady: args.inboxReady });
-    return null;
-  },
-});
-
-export const provisionInbox = internalAction({
-  args: { householdId: v.id("households") },
-  returns: v.null(),
-  handler: async (ctx, args) => {
-    const apiKey = process.env.AGENTMAIL_API_KEY;
-    if (!apiKey) return null;
-    const response = await fetch("https://api.agentmail.to/v0/inboxes", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ client_id: `recallready-household-${args.householdId}`, display_name: "RecallReady household inbox" }),
-    });
-    if (!response.ok) return null;
-    const payload: unknown = await response.json();
-    if (!payload || typeof payload !== "object") return null;
-    const email = (payload as Record<string, unknown>).email;
-    if (typeof email !== "string" || !email.includes("@")) return null;
-    await ctx.runMutation(internal.households.setInbox, { householdId: args.householdId, inboxEmail: email, inboxReady: true });
-    return null;
   },
 });

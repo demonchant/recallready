@@ -153,6 +153,9 @@ export const createProductFromReceipt = internalMutation({
   args: { householdId: v.id("households"), name: v.string(), brand: v.string(), modelNumber: v.string(), retailer: v.string(), source: v.union(v.literal("receipt"), v.literal("email")) },
   returns: v.id("products"),
   handler: async (ctx, args) => {
+    const home = await ctx.db.get(args.householdId);
+    if (!home) throw new Error("Household not found");
+    if (home.mode === "demo") throw new Error("Guided demo records are read-only. Start a household to import a receipt.");
     const productId = await ctx.db.insert("products", { householdId: args.householdId, name: args.name.slice(0, 120), brand: args.brand.slice(0, 100), modelNumber: args.modelNumber.slice(0, 100).toUpperCase(), category: "Imported purchase", room: "Unassigned", retailer: args.retailer.slice(0, 120), source: args.source, status: "clear", addedAt: Date.now() });
     await ctx.db.insert("events", { householdId: args.householdId, type: "receipt_processed", title: "Receipt turned into protection", detail: `OpenAI identified ${args.brand} ${args.modelNumber} and added it to your watched products.`, createdAt: Date.now() });
     return productId;

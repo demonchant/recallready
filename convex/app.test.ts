@@ -35,7 +35,7 @@ describe("RecallReady Convex backend", () => {
     const overview = await test.query(api.dashboard.overview, { sessionToken, householdId: home.householdId });
 
     expect(home.householdName).toBe("My Household");
-    expect(home.inboxEmail).toBe("provisioning@recallready.invalid");
+    expect(home.inboxEmail).toBe("recallready@agentmail.to");
     expect(overview.products).toHaveLength(0);
     expect(overview.matches).toHaveLength(0);
   });
@@ -135,5 +135,17 @@ describe("RecallReady Convex backend", () => {
     const match = overview.matches[0];
 
     await expect(test.mutation(api.recalls.setStatus, { sessionToken, matchId: match._id, status: "resolved" })).rejects.toThrow("Guided demo actions are read-only");
+  });
+
+  it("does not expose the private inbox or allow email actions in the guided demo", async () => {
+    const test = convexTest(schema, modules);
+    const sessionToken = "session-demo-protection-123456";
+    const home = await test.mutation(api.households.bootstrap, { sessionToken });
+    const current = await test.query(api.households.current, { sessionToken });
+    const overview = await test.query(api.dashboard.overview, { sessionToken, householdId: home.householdId });
+
+    expect(current?.inboxEmail).toBe("guided-demo@recallready.invalid");
+    expect(current?.inboxReady).toBe(false);
+    await expect(test.action(api.integrations.sendSafetyDigest, { sessionToken, matchId: overview.matches[0]._id })).rejects.toThrow("Guided demo actions are read-only");
   });
 });
